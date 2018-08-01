@@ -41,8 +41,12 @@ func main() {
 	}
 
 	// Add branch if found
-	branch, err := head.Branch().Name()
+	detached, err := repo.IsHeadDetached()
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	if detached {
 		name, err := head.Peel(git.ObjectAny)
 		if err != nil {
 			log.Fatalf("Can't resolve! %v", err)
@@ -50,8 +54,16 @@ func main() {
 		str, err := name.ShortId()
 		buf.WriteString(" " + str)
 	} else {
+		branch, err := head.Branch().Name()
+		if err != nil {
+			log.Fatal(err)
+		}
 		buf.WriteString(" ⌥ " + branch)
 	}
+
+	// dirty
+
+	// stashes
 
 	// final Exit
 	buf.WriteString(" $ ")
