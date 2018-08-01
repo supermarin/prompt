@@ -2,10 +2,9 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"log"
 	"os"
-	"path/filepath"
+	"path"
 
 	"github.com/libgit2/git2go"
 )
@@ -14,19 +13,47 @@ func main() {
 	// prompt storage
 	buf := new(bytes.Buffer)
 
-	ex, err := os.Executable()
-	if err != nil {
-		panic(err)
-	}
-	exPath := filepath.Dir(ex)
-
-	fmt.Fprintf(buf, exPath)
-
-	found, err := git.Discover(exPath, false, []string{})
+	wd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(found)
-	fmt.Println(buf.String())
+	buf.WriteString(path.Clean(wd))
+
+	var repo *git.Repository
+	if found, err := git.Discover(wd, false, nil); err == nil {
+		wat, err := git.OpenRepository(found)
+		if err != nil {
+			log.Fatal(err)
+		}
+		repo = wat
+	} else {
+		buf.WriteString(" $ ")
+		buf.WriteTo(os.Stdout)
+		os.Exit(0)
+		return
+	}
+
+	// in git repo
+	head, err := repo.Head()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Add branch if found
+	branch, err := head.Branch().Name()
+	if err != nil {
+		name, err := head.Peel(git.ObjectAny)
+		if err != nil {
+			log.Fatalf("Can't resolve! %v", err)
+		}
+		str, err := name.ShortId()
+		buf.WriteString(" " + str)
+	} else {
+		buf.WriteString(" ⌥ " + branch)
+	}
+
+	// final Exit
+	buf.WriteString(" $ ")
+	buf.WriteTo(os.Stdout)
 }
