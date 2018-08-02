@@ -6,7 +6,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path"
+	"os/user"
+	"path/filepath"
 
 	"github.com/libgit2/git2go"
 )
@@ -18,7 +19,14 @@ func main() {
 	wd, err := os.Getwd()
 	fatalIfError(err)
 
-	buf.WriteString(path.Clean(wd))
+	usr, err := user.Current()
+	if err != nil {
+		buf.WriteString(wd)
+	} else {
+		r, err := filepath.Rel(usr.HomeDir, wd)
+		fatalIfError(err)
+		buf.WriteString("~/" + r)
+	}
 
 	var repo *git.Repository
 	if found, err := git.Discover(wd, false, nil); err == nil {
