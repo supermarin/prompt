@@ -14,18 +14,14 @@ func main() {
 	buf := new(bytes.Buffer)
 
 	wd, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
+	fatalIfError(err)
 
 	buf.WriteString(path.Clean(wd))
 
 	var repo *git.Repository
 	if found, err := git.Discover(wd, false, nil); err == nil {
 		wat, err := git.OpenRepository(found)
-		if err != nil {
-			log.Fatal(err)
-		}
+		fatalIfError(err)
 		repo = wat
 	} else {
 		buf.WriteString(" $ ")
@@ -36,28 +32,22 @@ func main() {
 
 	// in git repo
 	head, err := repo.Head()
-	if err != nil {
-		log.Fatal(err)
-	}
+	fatalIfError(err)
 
 	// Add branch if found
 	detached, err := repo.IsHeadDetached()
-	if err != nil {
-		log.Fatal(err)
-	}
+	fatalIfError(err)
 
 	if detached {
 		name, err := head.Peel(git.ObjectAny)
-		if err != nil {
-			log.Fatalf("Can't resolve! %v", err)
-		}
-		str, err := name.ShortId()
-		buf.WriteString(" " + str)
+		fatalIfError(err)
+		headName, err := name.ShortId()
+		fatalIfError(err)
+		buf.WriteString(" " + headName)
 	} else {
+		// Not detached, it should be in a branch
 		branch, err := head.Branch().Name()
-		if err != nil {
-			log.Fatal(err)
-		}
+		fatalIfError(err)
 		buf.WriteString(" ⌥ " + branch)
 	}
 
@@ -68,4 +58,10 @@ func main() {
 	// final Exit
 	buf.WriteString(" $ ")
 	buf.WriteTo(os.Stdout)
+}
+
+func fatalIfError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
