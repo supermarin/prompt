@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 
 	"github.com/libgit2/git2go"
@@ -53,7 +54,11 @@ func main() {
 	}
 
 	// dirty
-	// repo.statuslist
+	out, err := exec.Command("git", "status", "--porcelain").Output()
+	fatalIfError(err)
+	if len(out) > 0 {
+		buf.WriteString(" M")
+	}
 
 	// stashes
 	var count int
