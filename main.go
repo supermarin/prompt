@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -52,9 +53,18 @@ func main() {
 	}
 
 	// dirty
+	// repo.statuslist
 
 	// stashes
+	var count int
+	repo.Stashes.Foreach(func(index int, msg string, id *git.Oid) error {
+		count++
+		return nil
+	})
 
+	if count > 0 {
+		fmt.Fprintf(buf, " S%v", count)
+	}
 	// final Exit
 	buf.WriteString(" $ ")
 	buf.WriteTo(os.Stdout)
