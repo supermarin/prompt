@@ -62,8 +62,7 @@ func main() {
 	}
 
 	// dirty
-	// out, err := exec.Command("git", "status", "--porcelain").Output()
-	err = exec.Command("git", "diff", "--no-ext-diff --quiet ---exit-code").Run()
+	_, err = exec.Command("git", "status", "--porcelain").Output()
 	if err == nil {
 		buf.WriteString(" M")
 	}
