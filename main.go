@@ -99,8 +99,7 @@ func main() {
 	}
 	// final Exit
 	buf.WriteString(" $ ")
-	// buf.WriteTo(os.Stdout)
-	fmt.Print(buf.String())
+	buf.WriteTo(os.Stdout)
 }
 
 func fatalIfError(err error) {
