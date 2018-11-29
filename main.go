@@ -19,7 +19,10 @@ const yellow = 33 // TODO: replace with magenta
 const reset = "\x1b[0m"
 
 func colored(s string, color int) string {
-	return fmt.Sprintf(format+s+reset, color)
+	// ghetto AF. Refactor later.  the %42{...%} dance around \e[3m escape
+	// codes is telling the string length to the terminal. It unfucks the
+	// prompt getting out of control when autocompleting.
+	return "%" + fmt.Sprintf("%d", len(s)) + "{" + fmt.Sprintf(format+s+reset, color) + "%}"
 }
 
 func main() {
