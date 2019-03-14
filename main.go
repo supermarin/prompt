@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"unicode/utf8"
 
-	"github.com/libgit2/git2go"
+	"gopkg.in/libgit2/git2go.v26"
 )
 
 const format = "\x1b[%dm"
